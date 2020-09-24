@@ -15,19 +15,29 @@ public class NeuralNetStruct {
     private int col3;
     private int col4;
 
-    NeuralNetStruct(int inr, int inc, int h1r, int h1c, int h2r, int h2c, int our, int ouc){
-        row1 = inr;
-        row2 = h1r;
-        row3 = h2r;
-        row4 = our;
-        col1 = inc;
-        col2 = h1c;
-        col3 = h2c;
-        col3 = ouc;
-        input = new Matrix(inr, inc);
-        hidden1 = new Matrix(h1r, h1c);
-        hidden2 = new Matrix(h2r, h2c);
-        output = new Matrix(our, ouc);
+    NeuralNetStruct(int nodesset1, int nodeset2, int nodeset3, int nodeset4, int nodeset5){
+        //first Matrix in NN
+        col1 = nodesset1;
+        row1 = nodeset2;
+
+        col2 = nodeset2;
+
+
+        row2 = nodeset3;
+        row3 = nodeset4;
+        row4 = nodeset5;
+
+
+        col3 = nodeset3;
+        col4 = nodeset4;
+        input = new Matrix(nodeset2, nodesset1);
+        hidden1 = new Matrix(nodeset3, nodeset2);
+        hidden2 = new Matrix(nodeset4, nodeset3);
+        output = new Matrix(nodeset5, nodeset4);
+        input.randomizer();
+        hidden1.randomizer();
+        hidden2.randomizer();
+        output.randomizer();
     }
 
     void display() {
@@ -46,6 +56,55 @@ public class NeuralNetStruct {
         hidden1.mutate(rate);
         hidden2.mutate(rate);
         output.mutate(rate);
+    }
+
+    static Matrix multiplyMatrices(Matrix mat1, Matrix mat2){
+        if(mat1.getCol() != mat2.getRow()){
+            System.out.print("error");
+        }
+        Matrix product = new Matrix(mat1.getRow(),mat2.getCol());
+        double var = 0;
+
+        for(int i = 0; i < mat1.getRow(); i++){
+            for (int j = 0 ; j < mat2.getCol(); j++){
+                for (int k = 0; k < mat1.getCol(); k++){
+                    var += mat1.getValue(i,k) * mat2.getValue(k,j);
+                }
+                product.setSpot(i,j,var);
+                var = 0;
+            }
+        }
+        return product;
+    }
+
+    public Matrix getMatIN(){
+        return input;
+    }
+
+    public Matrix getMath1(){
+        return hidden1;
+    }
+    public Matrix getMath2(){
+        return hidden2;
+    }
+    public Matrix getMatout(){
+        return output;
+    }
+
+    public Matrix ForwardProp (Matrix inputMatrix) {
+        inputMatrix.addBias();
+        Matrix first_hiddenLayer = multiplyMatrices(input, inputMatrix);
+        first_hiddenLayer.activate();
+        first_hiddenLayer.addBias();
+        Matrix second_hiddenLayer = multiplyMatrices(hidden1, first_hiddenLayer);
+        second_hiddenLayer.activate();
+        second_hiddenLayer.addBias();
+        Matrix third_hidden = multiplyMatrices(hidden2, second_hiddenLayer);
+        third_hidden.activate();
+        third_hidden.addBias();
+        Matrix outputLayer = multiplyMatrices(hidden2, third_hidden);
+        outputLayer.activate();
+        return outputLayer;
     }
 
 }

@@ -5,16 +5,34 @@ public class Matrix {
     private int col;
     double [][] matrix;
 
+
     Matrix(int row, int col){
         this.row = row;
         this.col = col;
         matrix = new double[row][col];
     }
 
+    public int getRow(){
+        return row;
+    }
+    public int getCol(){
+        return col;
+    }
+
     Matrix(double[][] m) {
         matrix = m;
         col = m.length;
         row = m[0].length;
+    }
+
+    public double getValue(int i, int j){
+        return matrix[i][j];
+    }
+
+    public void setSpot(int i, int j, double setter){
+        if(i < row && j < col){
+            matrix[i][j] = setter;
+        }
     }
 
     public double [] getArray() {
@@ -41,6 +59,8 @@ public class Matrix {
             }
         }
     }
+
+
 
     void mutate(float rate) {
         for (int i = 0; i < row; i++) {

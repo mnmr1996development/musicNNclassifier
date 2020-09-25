@@ -33,6 +33,9 @@ public class Matrix {
         if(i < row && j < col){
             matrix[i][j] = setter;
         }
+        else {
+            System.out.print("out of bounds you moron");
+        }
     }
 
     public double [] getArray() {

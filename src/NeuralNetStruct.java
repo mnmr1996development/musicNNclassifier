@@ -52,8 +52,8 @@ public class NeuralNetStruct {
         }
     }
 
-    public void setMat(int row, Matrix m) {
-        if(row == 0){
+    public void setMat(int MatPlace, Matrix m) {
+        if(MatPlace == 0){
             if(m.getRow() == reuasableNN.get(1).getCol()){
                 reuasableNN.set(0,m);
             }
@@ -61,29 +61,29 @@ public class NeuralNetStruct {
                 System.out.println("row 1 isn't the right dimensions");
             }
         }
-        else if(row < reuasableNN.size()){
-            if(m.getRow() == reuasableNN.get(row-1).getCol() &&
-                    m.getCol() == reuasableNN.get(row+1).getCol()){
-                reuasableNN.set(row,m);
+        else if(MatPlace < reuasableNN.size() && reuasableNN.size() > 2){
+            if(m.getRow() == reuasableNN.get(MatPlace+1).getCol() &&
+                    m.getCol() == reuasableNN.get(MatPlace-1).getRow()){
+                reuasableNN.set(MatPlace,m);
             }
             else {
-                System.out.println("dimensions are wrong");
+                System.out.println("dimensions are wrong middle");
             }
         }
-        else if(row == reuasableNN.size()-1) {
-            if(m.getRow() == reuasableNN.get(row-1).getCol()){
-                reuasableNN.set(row,m);
+        else if(MatPlace == reuasableNN.size()-1){
+            if(m.getCol() == reuasableNN.get(MatPlace-1).getRow()){
+                reuasableNN.set(MatPlace,m);
             }
             else {
-                System.out.println("dimensions are wrong");
+                System.out.println("dimensions are wrong end");
             }
         }
-        else if(row == reuasableNN.size()){
-            if(m.getRow() == reuasableNN.get(row-1).getCol()){
+        else if(MatPlace == reuasableNN.size()){
+            if(m.getCol() == reuasableNN.get(MatPlace-1).getRow()){
                 reuasableNN.add(m);
             }
             else {
-                System.out.println("dimensions are wrong");
+                System.out.println("Can't append");
             }
         }
         else{
@@ -93,7 +93,7 @@ public class NeuralNetStruct {
 
     public Matrix multiplyMatrices(Matrix mat1, Matrix mat2){
         if(mat1.getCol() != mat2.getRow()){
-            System.out.print("error");
+            System.out.println(mat1.getCol() + " Has to be equal to " + mat2.getRow());
         }
         Matrix product = new Matrix(mat1.getRow(),mat2.getCol());
         double var = 0;
@@ -115,30 +115,20 @@ public class NeuralNetStruct {
     }
 
 
-//    public Matrix ForwardProp (Matrix inputMatrix) {
-//        inputMatrix.addBias();
-//        Matrix first_hiddenLayer = multiplyMatrices(input, inputMatrix);
-//        first_hiddenLayer.activate();
-//        first_hiddenLayer.addBias();
-//        Matrix second_hiddenLayer = multiplyMatrices(hidden1, first_hiddenLayer);
-//        second_hiddenLayer.activate();
-//        second_hiddenLayer.addBias();
-//        Matrix third_hidden = multiplyMatrices(hidden2, second_hiddenLayer);
-//        third_hidden.activate();
-//        third_hidden.addBias();
-//        Matrix outputLayer = multiplyMatrices(hidden2, third_hidden);
-//        outputLayer.activate();
-//        return outputLayer;
-//    }
+    public Matrix ForwardPropGuess (Matrix inputMatrix) {
+       inputMatrix.addBias();
+       Matrix ithLayer = multiplyMatrices(inputMatrix,reuasableNN.get(0));
+       System.out.println("input dimensions are :\t" + inputMatrix.getRow() + "\tx\t" + inputMatrix.getCol());
+       System.out.println("first layer dimensions are:\t" + reuasableNN.get(0).getRow() + "\tx\t" + reuasableNN.get(0).getCol());
+        ithLayer.activate();
 
-//    public Matrix ForwardPropGuess (Matrix inputMatrix) {
-//        Matrix k = new Matrix();
-//        for(int i = 0; i < reuasableNN.size()-1; i++){
-//                k.addBias();
-//                k = multiplyMatrices(reuasableNN.get(i),k);
-//        }
-//        return k;
-//    }
+        for(int i = 1; i < reuasableNN.size(); i++){
+            ithLayer.addBias();
+            ithLayer = multiplyMatrices(ithLayer,reuasableNN.get(i));
+           ithLayer.activate();
+        }
+        return ithLayer;
+    }
 
 //    public Matrix BackProp (Matrix outputMatrix, double error) {
 //        inputMatrix.addBias();

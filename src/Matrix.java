@@ -20,9 +20,9 @@ public class Matrix {
     }
 
     Matrix(double[][] m) {
-        matrix = m;
-        col = m.length;
-        row = m[0].length;
+        this.matrix = m;
+        this.col = m.length;
+        this.row = m[0].length;
     }
 
     public double getValue(int i, int j){
@@ -102,19 +102,4 @@ public class Matrix {
         matrix = temp;
     }
 
-    Matrix crossover(Matrix p) {
-        Matrix temp = new Matrix(row, col);
-        int randR = (int) Math.floor(Math.random()*row);
-        int randC = (int) Math.floor(Math.random()*col);
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if ((i< randR)|| (i==randR && j<=randC)) {
-                    temp.matrix[i][j] = matrix[i][j];
-                } else {
-                    temp.matrix[i][j] = p.matrix[i][j];
-                }
-            }
-        }
-        return temp;
-    }
 }

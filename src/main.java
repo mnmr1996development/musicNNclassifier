@@ -11,6 +11,9 @@ public class main {
         Matrix k = new Matrix(2,1);
 
         Matrix l = new Matrix(3,2);
+
+        Matrix f = new Matrix(1,2);
+
         k.setSpot(1,0,1);
         k.setSpot(0,0,2);
 
@@ -21,15 +24,23 @@ public class main {
             }
         }
 
+        for(int i = 0; i < f.getRow(); i++){
+            for (int j =0; j < f.getCol(); j++){
+                f.setSpot(i,j,2);
+            }
+        }
 
-
-
-
-        System.out.println();
+        f.display();
         milo.setMat(0,k);
+        milo.setMat(1,l);
+        System.out.println();
+        milo.ForwardPropGuess(f).display();
 
-        System.out.println(milo.getIthMat(1).getRow());
-        System.out.println(milo.getIthMat(1).getCol());
+
+      milo.display();
+
+
+
 
 
     }

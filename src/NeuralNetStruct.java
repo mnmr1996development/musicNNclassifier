@@ -8,7 +8,11 @@ public class NeuralNetStruct {
 
     private ArrayList<Integer> rows = new ArrayList<Integer>();
     private ArrayList<Integer> cols = new ArrayList<Integer>();
-    private ArrayList<Double> error = new ArrayList<Double>();
+    private Matrix error;
+    private Matrix ideal;
+
+    public ArrayList<Matrix> bias = new ArrayList<Matrix>();
+
 
 
     NeuralNetStruct(int [] nodeSet){
@@ -26,8 +30,13 @@ public class NeuralNetStruct {
             reuasableNN.get(i).randomizer();
         }
 
-        for(int i = 0; i < nodeSet[nodeSet.length-1]; i++){
-            error.add(0.0);
+        Matrix k = new Matrix(6,1);
+        this.error = k;
+
+        for(int i = 1; i < nodeSet.length; i++){
+            Matrix temp = new Matrix(nodeSet[i],1);
+            temp.randomizer();
+            this.bias.add(temp);
         }
 
     }
@@ -39,11 +48,24 @@ public class NeuralNetStruct {
         }
     }
 
+    Matrix addBiasWeight(Matrix mat,Matrix bias){
+        if(mat.getRow() == bias.getRow() && mat.getCol() == bias.getCol()){
+            Matrix temp = new Matrix(mat.getRow(),mat.getCol());
+            for(int i =0; i < mat.getRow(); i++){
+                for (int j = 0; j < mat.getCol(); j++){
+                    temp.setSpot(i,j, mat.getValue(i,j)+bias.getValue(i,j));
+                }
+            }
+            return temp;
+        }
+        else{
+            return null;
+        }
+    }
+
     public void showErrors(){
         System.out.println("Errors");
-        for(int i = 0; i < error.size(); i++){
-            System.out.print(error.get(i) + "\t");
-        }
+        error.display();
     }
 
     public void mutate(float rate) {
@@ -110,24 +132,62 @@ public class NeuralNetStruct {
         return product;
     }
 
+    public void setIdeal(Matrix ideal){
+        if(ideal.getRow() == error.getRow() && ideal.getCol() == 1) {
+            this.ideal = ideal;
+        }
+        else {
+            System.out.println("The Amount of output Nodes Doesn't match the ideal matrix size");
+        }
+    }
+
+    public Matrix Subtract(Matrix a, Matrix b){
+        Matrix subdedMAt = new Matrix(a.getRow(), a.getCol());
+        if(a.getCol() == b.getCol() && a.getRow() == b.getRow()){
+            for(int i = 0; i < a.getRow(); i++){
+                for (int j = 0; j < a.getCol(); j++){
+                    subdedMAt.setSpot(i,j, a.getValue(i,j)- b.getValue(i,j));
+                }
+            }
+            return subdedMAt;
+        }
+        return null;
+    }
+
+    public void printBiases(){
+        for(int i =0; i < bias.size();i++){
+            bias.get(i).display();
+            System.out.println();
+        }
+    }
+
     public Matrix getIthMat(int i){
         return reuasableNN.get(i);
     }
 
 
     public Matrix ForwardPropGuess (Matrix inputMatrix) {
-       inputMatrix.addBias();
-       Matrix ithLayer = multiplyMatrices(inputMatrix,reuasableNN.get(0));
-       System.out.println("input dimensions are :\t" + inputMatrix.getRow() + "\tx\t" + inputMatrix.getCol());
-       System.out.println("first layer dimensions are:\t" + reuasableNN.get(0).getRow() + "\tx\t" + reuasableNN.get(0).getCol());
-        ithLayer.activate();
 
-        for(int i = 1; i < reuasableNN.size(); i++){
-            ithLayer.addBias();
-            ithLayer = multiplyMatrices(ithLayer,reuasableNN.get(i));
-           ithLayer.activate();
+       Matrix ithLayer = multiplyMatrices(reuasableNN.get(0),inputMatrix);
+        ithLayer = addBiasWeight(ithLayer,bias.get(0));
+        ithLayer.activate();
+      // System.out.println("input dimensions are :\t" + inputMatrix.getRow() + "\tx\t" + inputMatrix.getCol());
+       //System.out.println("first layer dimensions are:\t" + reuasableNN.get(0).getRow() + "\tx\t" + reuasableNN.get(0).getCol());
+        //ithLayer.activate();
+        for (int i = 1; i < reuasableNN.size(); i++) {
+            ithLayer = multiplyMatrices(reuasableNN.get(i), ithLayer);
+            ithLayer = addBiasWeight(ithLayer, bias.get(i));
+            ithLayer.activate();
         }
         return ithLayer;
+    }
+
+    public Matrix getError (Matrix inputMatrix, Matrix idealOutput){
+        Matrix temp = ForwardPropGuess(inputMatrix);
+        for(int i = 0; i < this.error.getRow(); i++){
+            error.setSpot(i,0,idealOutput.getValue(i,0)-temp.getValue(i,0));
+        }
+        return error;
     }
 
 //    public Matrix BackProp (Matrix outputMatrix, double error) {

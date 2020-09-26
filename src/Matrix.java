@@ -9,7 +9,7 @@ public class Matrix {
     Matrix(int row, int col){
         this.row = row;
         this.col = col;
-        matrix = new double[row][col];
+        this.matrix = new double[row][col];
     }
 
     public int getRow(){
@@ -97,9 +97,14 @@ public class Matrix {
                 temp[i][j] = matrix[i][j];
             }
         }
-        temp[row][col - 1] = 1;
-        row = row + 1;
-        matrix = temp;
+        for(int i = 0; i < col; i++){
+            temp[row][i] = 1;
+        }
+        this.row++;
+        this.matrix = temp;
     }
+
+
+
 
 }

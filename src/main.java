@@ -7,8 +7,8 @@ public class main {
 
         //this
         int tight[] = {3, 6, 4,7};
-        NeuralNetStruct milo = new NeuralNetStruct(tight);
-        Matrix help = new Matrix(5,1);
+        NeuralNetStruct milo = new NeuralNetStruct(tight, .1);
+        Matrix help = new Matrix(7,1);
         Matrix ideal = new Matrix(3,1);
 
 
@@ -39,17 +39,15 @@ public class main {
             }
         }
 
-        for (int i = 0; i < help.getRow(); i++) {
-            for (int j = 0; j < help.getCol(); j++) {
-                help.setSpot(i, j, 1);
-            }
-        }
+       help.setSpot(0,0,1);
 
 
 
-        milo.display();
 
-        milo.multiplyMatrices(milo.reuasableNN.get(0), milo.reuasableNN.get(1));
+        milo.set_all_errors(ideal,help);
+        milo.show_Errors();
+        //milo.show_Errors();
+
 
         //milo.ForwardPropGuess(help).display();
 

@@ -63,7 +63,24 @@ public class Matrix {
         }
     }
 
+    //for the learning rate
+    void multiplyBy(double Rate){
+        for(int i =0; i < row; i++){
+            for(int j =0; j < col; j++){
+                matrix[i][j] = matrix[i][j]*Rate;
+            }
+        }
+    }
 
+    void SubBy(Matrix diff){
+        if(diff.row == row && diff.col == col) {
+            for (int i = 0; i < row; i++) {
+                for (int j = 0; j < col; j++) {
+                    matrix[i][j] = matrix[i][j] - diff.getValue(i,j);
+                }
+            }
+        }
+    }
 
     void mutate(float rate) {
         for (int i = 0; i < row; i++) {
@@ -103,6 +120,7 @@ public class Matrix {
         this.row++;
         this.matrix = temp;
     }
+
 
 
 

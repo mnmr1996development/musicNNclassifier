@@ -8,15 +8,15 @@ public class NeuralNetStruct {
 
     private ArrayList<Integer> rows = new ArrayList<Integer>();
     private ArrayList<Integer> cols = new ArrayList<Integer>();
-    public Matrix error;
-    private ArrayList<Matrix> hidden_errors = new ArrayList<>();
+    private ArrayList<Matrix> all_errors = new ArrayList<>();
     private Matrix ideal;
+    private double learningRate;
 
     public ArrayList<Matrix> bias = new ArrayList<Matrix>();
 
 
 
-    NeuralNetStruct(int [] nodeSet){
+    NeuralNetStruct(int [] nodeSet, double learnRate){
         if(nodeSet.length >= 2)
         for(int i = 0; i < nodeSet.length-1; i++){
             cols.add(nodeSet[i]);
@@ -31,12 +31,11 @@ public class NeuralNetStruct {
             reuasableNN.get(i).randomizer();
         }
 
-        Matrix k = new Matrix(nodeSet[nodeSet.length-1],1);
-        this.error = k;
+        Matrix k;
 
-        for(int i = nodeSet.length-2; i > 0; i--){
+        for(int i = 1; i <  nodeSet.length; i++){
             k = new Matrix(nodeSet[i],1);
-            hidden_errors.add(k);
+            all_errors.add(k);
         }
 
         for(int i = 1; i < nodeSet.length; i++){
@@ -45,6 +44,7 @@ public class NeuralNetStruct {
             this.bias.add(temp);
         }
 
+        this.learningRate = learnRate;
     }
 
     public Matrix transpose(Matrix wtf){
@@ -64,6 +64,14 @@ public class NeuralNetStruct {
         }
     }
 
+    public double getLearningRate(){
+        return this.learningRate;
+    }
+
+    public void ChangeLearningRate(double newRate){
+        this.learningRate = newRate;
+    }
+
     Matrix addBiasWeight(Matrix mat,Matrix bias){
         if(mat.getRow() == bias.getRow() && mat.getCol() == bias.getCol()){
             Matrix temp = new Matrix(mat.getRow(),mat.getCol());
@@ -79,14 +87,10 @@ public class NeuralNetStruct {
         }
     }
 
-    public void showErrors(){
-        System.out.println("Errors");
-        error.display();
-    }
 
-    public void showHiddenErrors(){
-        for(int i =0; i < hidden_errors.size(); i++){
-            hidden_errors.get(i).display();
+    public void show_Errors(){
+        for(int i =0; i < all_errors.size(); i++){
+            all_errors.get(i).display();
             System.out.println();
         }
     }
@@ -96,6 +100,7 @@ public class NeuralNetStruct {
             reuasableNN.get(i).mutate(rate);
         }
     }
+
 
     public void setMat(int MatPlace, Matrix m) {
         if(MatPlace == 0){
@@ -139,6 +144,7 @@ public class NeuralNetStruct {
     public Matrix multiplyMatrices(Matrix mat1, Matrix mat2){
         if(mat1.getCol() != mat2.getRow()){
             System.out.println(mat1.getCol() + " Has to be equal to " + mat2.getRow());
+            return null;
         }
         Matrix product = new Matrix(mat1.getRow(),mat2.getCol());
         double var = 0;
@@ -156,7 +162,7 @@ public class NeuralNetStruct {
     }
 
     public void setIdeal(Matrix ideal){
-        if(ideal.getRow() == error.getRow() && ideal.getCol() == 1) {
+        if(ideal.getRow() == all_errors.get(all_errors.size()-1).getRow() && ideal.getCol() == 1) {
             this.ideal = ideal;
         }
         else {
@@ -194,9 +200,6 @@ public class NeuralNetStruct {
        Matrix ithLayer = multiplyMatrices(reuasableNN.get(0),inputMatrix);
         ithLayer = addBiasWeight(ithLayer,bias.get(0));
         ithLayer.activate();
-      // System.out.println("input dimensions are :\t" + inputMatrix.getRow() + "\tx\t" + inputMatrix.getCol());
-       //System.out.println("first layer dimensions are:\t" + reuasableNN.get(0).getRow() + "\tx\t" + reuasableNN.get(0).getCol());
-        //ithLayer.activate();
         for (int i = 1; i < reuasableNN.size(); i++) {
             ithLayer = multiplyMatrices(reuasableNN.get(i), ithLayer);
             ithLayer = addBiasWeight(ithLayer, bias.get(i));
@@ -205,12 +208,15 @@ public class NeuralNetStruct {
         return ithLayer;
     }
 
-    public Matrix getError (Matrix inputMatrix, Matrix idealOutput){
+    public void set_all_errors (Matrix inputMatrix, Matrix idealOutput){
         Matrix temp = ForwardPropGuess(inputMatrix);
-        for(int i = 0; i < this.error.getRow(); i++){
-            error.setSpot(i,0,idealOutput.getValue(i,0)-temp.getValue(i,0));
+        all_errors.set(all_errors.size()-1,Subtract(idealOutput,temp));
+
+        all_errors.set(all_errors.size()-2, multiplyMatrices(transpose(reuasableNN.get(reuasableNN.size()-1)), all_errors.get(all_errors.size()-1)));
+
+        for(int i = all_errors.size()-2; i >=0; i--){
+            all_errors.set(i, multiplyMatrices(transpose(reuasableNN.get(i+1)), all_errors.get(i+1)));
         }
-        return error;
     }
 
 

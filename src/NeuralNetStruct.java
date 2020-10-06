@@ -8,7 +8,8 @@ public class NeuralNetStruct {
 
     private ArrayList<Integer> rows = new ArrayList<Integer>();
     private ArrayList<Integer> cols = new ArrayList<Integer>();
-    private Matrix error;
+    public Matrix error;
+    private ArrayList<Matrix> hidden_errors = new ArrayList<>();
     private Matrix ideal;
 
     public ArrayList<Matrix> bias = new ArrayList<Matrix>();
@@ -30,8 +31,13 @@ public class NeuralNetStruct {
             reuasableNN.get(i).randomizer();
         }
 
-        Matrix k = new Matrix(6,1);
+        Matrix k = new Matrix(nodeSet[nodeSet.length-1],1);
         this.error = k;
+
+        for(int i = nodeSet.length-2; i > 0; i--){
+            k = new Matrix(nodeSet[i],1);
+            hidden_errors.add(k);
+        }
 
         for(int i = 1; i < nodeSet.length; i++){
             Matrix temp = new Matrix(nodeSet[i],1);
@@ -39,6 +45,16 @@ public class NeuralNetStruct {
             this.bias.add(temp);
         }
 
+    }
+
+    public Matrix transpose(Matrix wtf){
+        Matrix temp = new Matrix(wtf.getCol(), wtf.getRow());
+        for(int i = 0; i < wtf.getRow(); i++){
+            for(int j =0; j < wtf.getCol(); j++){
+                temp.setSpot(j,i,wtf.getValue(i,j));
+            }
+        }
+        return temp;
     }
 
     public void display() {
@@ -68,6 +84,13 @@ public class NeuralNetStruct {
         error.display();
     }
 
+    public void showHiddenErrors(){
+        for(int i =0; i < hidden_errors.size(); i++){
+            hidden_errors.get(i).display();
+            System.out.println();
+        }
+    }
+
     public void mutate(float rate) {
         for(int i = 0; i < reuasableNN.size(); i++) {
             reuasableNN.get(i).mutate(rate);
@@ -83,7 +106,7 @@ public class NeuralNetStruct {
                 System.out.println("row 1 isn't the right dimensions");
             }
         }
-        else if(MatPlace < reuasableNN.size() && reuasableNN.size() > 2){
+        else if(MatPlace < reuasableNN.size()-1 && reuasableNN.size() > 2){
             if(m.getRow() == reuasableNN.get(MatPlace+1).getCol() &&
                     m.getCol() == reuasableNN.get(MatPlace-1).getRow()){
                 reuasableNN.set(MatPlace,m);
@@ -190,20 +213,11 @@ public class NeuralNetStruct {
         return error;
     }
 
+
+
+
 //    public Matrix BackProp (Matrix outputMatrix, double error) {
-//        inputMatrix.addBias();
-//        Matrix first_hiddenLayer = multiplyMatrices(input, inputMatrix);
-//        first_hiddenLayer.activate();
-//        first_hiddenLayer.addBias();
-//        Matrix second_hiddenLayer = multiplyMatrices(hidden1, first_hiddenLayer);
-//        second_hiddenLayer.activate();
-//        second_hiddenLayer.addBias();
-//        Matrix third_hidden = multiplyMatrices(hidden2, second_hiddenLayer);
-//        third_hidden.activate();
-//        third_hidden.addBias();
-//        Matrix outputLayer = multiplyMatrices(hidden2, third_hidden);
-//        outputLayer.activate();
-//        return outputLayer;
+//
 //    }
 
 }

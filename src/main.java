@@ -6,11 +6,13 @@ public class main {
         Matrix mike = new Matrix(3, 3);
 
         //this
-        int tight[] = {3, 6, 4,7};
-        NeuralNetStruct milo = new NeuralNetStruct(tight, .1);
-        Matrix help = new Matrix(7,1);
-        Matrix ideal = new Matrix(3,1);
+        int tight[] = {9, 3, 4,7};
 
+        Matrix ideal = new Matrix(7,1);
+
+        //ideal row must be equal to fi
+        Matrix input = new Matrix(9,1);
+        NeuralNetStruct milo = new NeuralNetStruct(tight, .1);
 
         Matrix k = new Matrix(4, 5);
 
@@ -28,9 +30,9 @@ public class main {
             }
         }
 
-        for (int i = 0; i < k.getRow(); i++) {
-            for (int j = 0; j < k.getCol(); j++) {
-                k.setSpot(i, j, 1);
+        for (int i = 0; i < input.getRow(); i++) {
+            for (int j = 0; j < input.getCol(); j++) {
+                input.setSpot(i, j, i+j);
             }
         }
         for (int i = 0; i < f.getRow(); i++) {
@@ -39,13 +41,14 @@ public class main {
             }
         }
 
-       help.setSpot(0,0,1);
+       ideal.setSpot(0,0,1);
 
 
 
 
-        milo.set_all_errors(ideal,help);
-        milo.show_Errors();
+        milo.Train(input,ideal);
+        //milo.show_Errors();
+       // milo.show_outputs();
         //milo.show_Errors();
 
 

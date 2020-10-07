@@ -8,7 +8,8 @@ public class NeuralNetStruct {
 
     private ArrayList<Integer> rows = new ArrayList<Integer>();
     private ArrayList<Integer> cols = new ArrayList<Integer>();
-    private ArrayList<Matrix> all_errors = new ArrayList<>();
+    private ArrayList<Matrix> all_errors = new ArrayList<Matrix>();
+    private ArrayList<Matrix> storeOutputs = new ArrayList<Matrix>();
     private Matrix ideal;
     private double learningRate;
 
@@ -36,6 +37,7 @@ public class NeuralNetStruct {
         for(int i = 1; i <  nodeSet.length; i++){
             k = new Matrix(nodeSet[i],1);
             all_errors.add(k);
+            storeOutputs.add(k);
         }
 
         for(int i = 1; i < nodeSet.length; i++){
@@ -72,6 +74,8 @@ public class NeuralNetStruct {
         this.learningRate = newRate;
     }
 
+
+
     Matrix addBiasWeight(Matrix mat,Matrix bias){
         if(mat.getRow() == bias.getRow() && mat.getCol() == bias.getCol()){
             Matrix temp = new Matrix(mat.getRow(),mat.getCol());
@@ -87,6 +91,22 @@ public class NeuralNetStruct {
         }
     }
 
+    //sigmoid function
+    public Matrix activate(Matrix input) {
+        Matrix temp = new Matrix(input.getRow(),input.getCol());
+        for (int i = 0; i < input.getRow(); i++) {
+            for (int j = 0; j < input.getCol(); j++) {
+                temp.setSpot(i,j, (1)/(1+Math.exp((float)-input.getValue(i,j))));
+            }
+        }
+        return temp;
+    }
+
+    public Matrix activationDerivative(Matrix input) {
+        return HadamardProduct(activate(input), subtractFrom(1, activate(input)));
+    }
+
+
 
     public void show_Errors(){
         for(int i =0; i < all_errors.size(); i++){
@@ -95,13 +115,15 @@ public class NeuralNetStruct {
         }
     }
 
-    public void mutate(float rate) {
-        for(int i = 0; i < reuasableNN.size(); i++) {
-            reuasableNN.get(i).mutate(rate);
+    public void show_outputs(){
+        for(int i =0; i < storeOutputs.size(); i++){
+            storeOutputs.get(i).display();
+            System.out.println();
         }
     }
 
 
+    //for my own testing purposes that my math is okay
     public void setMat(int MatPlace, Matrix m) {
         if(MatPlace == 0){
             if(m.getRow() == reuasableNN.get(1).getCol()){
@@ -198,14 +220,45 @@ public class NeuralNetStruct {
     public Matrix ForwardPropGuess (Matrix inputMatrix) {
 
        Matrix ithLayer = multiplyMatrices(reuasableNN.get(0),inputMatrix);
-        ithLayer = addBiasWeight(ithLayer,bias.get(0));
-        ithLayer.activate();
+        ithLayer = activate(addBiasWeight(ithLayer,bias.get(0)));
+        storeOutputs.set(0,ithLayer);
         for (int i = 1; i < reuasableNN.size(); i++) {
             ithLayer = multiplyMatrices(reuasableNN.get(i), ithLayer);
-            ithLayer = addBiasWeight(ithLayer, bias.get(i));
-            ithLayer.activate();
+            ithLayer = activate(addBiasWeight(ithLayer, bias.get(i)));
+            storeOutputs.set(i,ithLayer);
         }
         return ithLayer;
+    }
+
+    public Matrix subtractFrom(int number, Matrix input){
+        Matrix temp = new Matrix(input.getRow(), input.getCol());
+        for(int i =0; i < input.getRow(); i++){
+            for(int j =0; j < input.getCol(); j++){
+                temp.setSpot(i,j, number-input.getValue(i,j));
+            }
+        }
+        return temp;
+    }
+
+    //for the learning rate
+    Matrix multiplyBy(Matrix temp, double Rate){
+        for(int i =0; i < temp.getRow(); i++){
+            for(int j =0; j < temp.getCol(); j++){
+                temp.setSpot(i,j, temp.getValue(i,j)*Rate);
+            }
+        }
+        return temp;
+    }
+
+    //
+    Matrix HadamardProduct(Matrix input, Matrix input2){
+        Matrix temp = new Matrix(input.getRow(), input.getCol());
+        for(int i =0; i < temp.getRow(); i++){
+            for(int j =0; j < temp.getCol(); j++){
+                temp.setSpot(i,j, input.getValue(i,j)*input.getValue(i,j));
+            }
+        }
+        return temp;
     }
 
     public void set_all_errors (Matrix inputMatrix, Matrix idealOutput){
@@ -219,6 +272,33 @@ public class NeuralNetStruct {
         }
     }
 
+
+
+    public void Train(Matrix inputMatrix, Matrix idealOutput){
+        set_all_errors(inputMatrix, idealOutput);
+        //Matrix deltax = multiplyBy(all_errors.get(all_errors.size()-1),this.learningRate);
+        //deltax.display();
+
+
+
+
+        //multiplyMatrices(HadamardProduct(deltax,HadamardProduct(storeOutputs.get(storeOutputs.size()-1),subtractFrom(1,storeOutputs.get(storeOutputs.size()-1)))),transpose(storeOutputs.get(storeOutputs.size()-1))).display();
+        for(int i = storeOutputs.size()-1; i >= 0; i--) {
+            Matrix map = activationDerivative(storeOutputs.get(i));
+            map = HadamardProduct(storeOutputs.get(i), map);
+            map = multiplyBy(map, this.learningRate);
+            if(i == 0){
+                //inputMatrix.display();
+                map = multiplyMatrices(map, transpose(inputMatrix));
+            }
+            else {
+                map = multiplyMatrices(map, transpose(storeOutputs.get(i-1)));
+            }
+            map.display();
+            System.out.println();
+        }
+        //reuasableNN.get(reuasableNN.size()-1).display();
+    }
 
 
 

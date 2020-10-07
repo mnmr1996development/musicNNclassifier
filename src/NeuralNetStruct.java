@@ -2,20 +2,14 @@ import java.util.ArrayList;
 
 public class NeuralNetStruct {
 
-
     public ArrayList<Matrix> reuasableNN = new ArrayList<Matrix>();
-
-
     private ArrayList<Integer> rows = new ArrayList<Integer>();
     private ArrayList<Integer> cols = new ArrayList<Integer>();
     private ArrayList<Matrix> all_errors = new ArrayList<Matrix>();
     private ArrayList<Matrix> storeOutputs = new ArrayList<Matrix>();
     private Matrix ideal;
     private double learningRate;
-
-    public ArrayList<Matrix> bias = new ArrayList<Matrix>();
-
-
+    private ArrayList<Matrix> bias = new ArrayList<Matrix>();
 
     NeuralNetStruct(int [] nodeSet, double learnRate){
         if(nodeSet.length >= 2)
@@ -73,8 +67,6 @@ public class NeuralNetStruct {
     public void ChangeLearningRate(double newRate){
         this.learningRate = newRate;
     }
-
-
 
     Matrix addBiasWeight(Matrix mat,Matrix bias){
         if(mat.getRow() == bias.getRow() && mat.getCol() == bias.getCol()){
@@ -272,39 +264,22 @@ public class NeuralNetStruct {
         }
     }
 
-
-
     public void Train(Matrix inputMatrix, Matrix idealOutput){
         set_all_errors(inputMatrix, idealOutput);
-        //Matrix deltax = multiplyBy(all_errors.get(all_errors.size()-1),this.learningRate);
-        //deltax.display();
-
-
-
-
-        //multiplyMatrices(HadamardProduct(deltax,HadamardProduct(storeOutputs.get(storeOutputs.size()-1),subtractFrom(1,storeOutputs.get(storeOutputs.size()-1)))),transpose(storeOutputs.get(storeOutputs.size()-1))).display();
         for(int i = storeOutputs.size()-1; i >= 0; i--) {
             Matrix map = activationDerivative(storeOutputs.get(i));
             map = HadamardProduct(storeOutputs.get(i), map);
             map = multiplyBy(map, this.learningRate);
+            bias.get(i).AddBy(map);
             if(i == 0){
-                //inputMatrix.display();
-                map = multiplyMatrices(map, transpose(inputMatrix));
+                reuasableNN.set(i,Subtract(reuasableNN.get(i),multiplyMatrices(map, transpose(inputMatrix))));
             }
             else {
-                map = multiplyMatrices(map, transpose(storeOutputs.get(i-1)));
+                reuasableNN.set(i,Subtract(reuasableNN.get(i),multiplyMatrices(map, transpose(storeOutputs.get(i-1)))));
             }
-            map.display();
-            System.out.println();
         }
-        //reuasableNN.get(reuasableNN.size()-1).display();
     }
 
-
-
-//    public Matrix BackProp (Matrix outputMatrix, double error) {
-//
-//    }
 
 }
 

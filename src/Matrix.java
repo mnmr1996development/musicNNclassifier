@@ -82,6 +82,16 @@ public class Matrix {
         }
     }
 
+    void AddBy(Matrix addition){
+        if(addition.row == row && addition.col == col) {
+            for (int i = 0; i < row; i++) {
+                for (int j = 0; j < col; j++) {
+                    matrix[i][j] = matrix[i][j] + addition.getValue(i,j);
+                }
+            }
+        }
+    }
+
     void mutate(float rate) {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -120,10 +130,4 @@ public class Matrix {
         this.row++;
         this.matrix = temp;
     }
-
-
-
-
-
-
 }
